@@ -29,7 +29,7 @@ class Character:
     @health.setter
     def health(self, value):
         self._health = max(0, min(value, self.maxHealth))  # Ensure health is within valid range
-        self.health_bar.draw()  # Redraw the health bar whenever health changes
+#        self.health_bar.draw()  # Redraw the health bar whenever health changes
         
     def attack(self, target) -> None:
         damage = self.weapon.attack()
@@ -51,6 +51,7 @@ class Hero(Character):
         self.weapon = dagger
         self.default_weapon = self.weapon
         self.maxHealth = maxHealth
+        self.maxMana = maxMana
         self.inventory = [dagger]  # Initialize the inventory with the default weapon
         self.item_inventory = []   # Initialize an empty item inventory
         self.health_bar = HealthBar(self, color="green")  # Initialize the health bar with the color green
@@ -87,10 +88,17 @@ class Hero(Character):
         try:
             self.item_inventory.remove(item)
         except ValueError:
-            print(f"You do not have a {item.name} potion your their inventory.")
+            print(f"You do not have a {item.name} potion in your inventory.")
             return
-        self.health = min(self.health + item.effect, self.maxHealth)
-        print(f"{self.name} used {item.name} and restored {item.effect} health!")
+
+        if item.name == 'Health':
+            self.health = min(self.health + item.effect, self.maxHealth)
+            print(f"{self.name} used {item.name} and restored {item.effect} health!")
+        elif item.name == 'Mana':
+            self.mana = min(self.mana + item.effect, self.maxMana)
+            print(f"{self.name} used {item.name} and restored {item.effect} mana!")
+        else:
+            print(f"Unknown potion type: {item.type}")
 
 
 # ------------ Enemy Subclass ------------

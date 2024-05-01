@@ -72,8 +72,13 @@ def battle_use_item(hero):
             try:
                 item_number = int(input("Choose an item by number: ")) - 1
                 if 0 <= item_number < len(hero.item_inventory):
-                    item = hero.item_inventory[item_number]
-                    hero.use_item(item)
+                    try:
+                        item = hero.item_inventory[item_number]
+                        hero.use_item(item)
+                    except ValueError:
+                        print(f"You do not have a {item.name} potion in your inventory.")
+                        return
+                    
                     break
                 else:
                     print("Invalid item number. Please try again.")
@@ -113,9 +118,10 @@ def start_game_page():
     if choice == '1':
         hero_name = input("Enter the name for your hero: ")
         hero_health = 100
+        hero_mana = 0
         hero_maxHealth = 100
         hero_maxMana = 100
-        hero = Hero(name=hero_name, health=hero_health, maxHealth=hero_maxHealth, mana=100, maxMana=100)
+        hero = Hero(name=hero_name, health=hero_health, maxHealth=hero_maxHealth, mana=0, maxMana=100)
         hero.equip(dagger)
         clear_console()
         see_lore = input("Would you like to see the intro lore? (yes/no): ")
@@ -168,6 +174,7 @@ if __name__ == "__main__":
             hero.equip(chosen_weapon)
             while hero.health > 0 and enemy.health > 0:
                 hero.health_bar.draw()
+                hero.mana_bar.draw()
                 enemy.health_bar.draw()
                 print("Do you want to (1) Attack, (2) Mana Attack, or (3) Use an item?")
                 action = input("> ")
@@ -181,8 +188,6 @@ if __name__ == "__main__":
                     print("Invalid action. You lose your turn.")
                 if enemy.health > 0:
                     enemy.attack(hero)
-                hero.health_bar.update()
-                hero.health_bar.draw
                 input("Press Enter to continue...")
                 clear_console()
             if hero.health <= 0:

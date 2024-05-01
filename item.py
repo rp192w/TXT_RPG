@@ -2,10 +2,9 @@ from dataclasses import dataclass
 
 @dataclass
 class Potion:
-    def __init__(self, name, effect, cost):
-        self.name = name
-        self.effect = effect
-        self.cost = cost
+    name: str
+    effect: int
+    cost: int
 
     def use(self, character: 'Character') -> None:
         character.health = min(character.health + self.effect, character.maxHealth)

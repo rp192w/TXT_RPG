@@ -1,6 +1,6 @@
 import math
 
-class HealthBar:
+class Bar:
     symbol_remaining: str = "█"
     symbol_lost: str = "_"
     barrier: str = "|"
@@ -26,15 +26,15 @@ class HealthBar:
 
     @property
     def current_value(self):
-        return self.entity.health
-
+        raise NotImplementedError("This method should be overridden in a subclass")
 
     def draw(self) -> None:
-        health_bar = self.symbol_remaining * math.ceil(self.current_value)
-        health_bar = health_bar.ljust(self.length, self.symbol_lost)
-        health_bar = self.colorize(health_bar) if self.is_colored else health_bar
-        print(f"{self.entity.name}'s HEALTH: {self.current_value}/{self.entity.maxHealth}")
-        print(f"{self.barrier}{health_bar}{self.barrier}")
+            bar = self.symbol_remaining * math.ceil(self.current_value)
+            bar = bar.ljust(self.length, self.symbol_lost)
+            bar = self.colorize(bar) if self.is_colored else bar
+            print(f"{self.entity.name}'s {self.bar_name}: {self.current_value}/{self.max_value}")
+            print(f"{self.barrier}{bar}{self.barrier}")
+
 
     def colorize(self, text):
         return f"{self.color}{text}{self.colors['default']}"
@@ -42,14 +42,31 @@ class HealthBar:
     def update(self):
         return self.entity.health
 
-class ManaBar:
-    def __init__(self, character, max_mana):
-        self.character = character
-        self.max_mana = max_mana
+class HealthBar(Bar):
+    bar_name = "HEALTH"
+    
+    @property
+    def current_value(self):
+        return self.entity.health
 
-    def draw(self):
-        mana_bar = self.symbol_remaining * self.character.mana
-        mana_bar = mana_bar.ljust(self.length, self.symbol_lost)
-        mana_bar = self.colorize(mana_bar) if self.is_colored else mana_bar
-        print(f"{self.character.name}'s MANA: {self.character.mana}/{self.max_mana}")
-        print(f"{self.barrier}{mana_bar}{self.barrier}")
+    @property
+    def max_value(self):
+        return self.entity.maxHealth
+
+    def __init__(self, entity, length: int = 20, is_colored: bool = True, color: str = "green") -> None:
+        super().__init__(entity, length, is_colored, color)
+
+class ManaBar(Bar):
+    bar_name = "MANA"
+
+    @property
+    def current_value(self):
+        return self.entity.mana
+
+    @property
+    def max_value(self):
+        return self.entity.maxMana
+    
+    def __init__(self, entity, length: int = 20, is_colored: bool = True, color: str = "blue") -> None:
+        super().__init__(entity, length, is_colored, color)
+

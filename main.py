@@ -1,10 +1,11 @@
-# ------------ imports ------------
-import sys
-import os
-from character import Hero, Enemy, goblin, ogre, troll, wizard, skeleton, zombie, dragon
-from weapon import fists, short_bow, iron_sword, long_bow, steel_sword, magic_staff, fire_breath
-from shop import Shop, health_potion
-from story import start_game
+# ------------ Imports ------------
+import sys, os
+from character import Hero, Enemy, goblin, ogre, troll, wizard, giant, minotaur, dragon
+from weapon import dagger, short_bow, iron_sword, battle_axe, steel_sword, magic_staff, fire_breath
+from story import start_game, goblinIntro, ogreIntro, trollIntro, wizardIntro, giantIntro, minotaurIntro, dragonIntro, dragonOutro, goblinOutro, ogreOutro, trollOutro, wizardOutro, giantOutro, minotaurOutro, dragonOutro, end_game
+from shop import Shop
+from item import health_potion, mana_potion
+
 
 # ------------ Choose Weapon ------------
 def choose_weapon(inventory):
@@ -60,28 +61,24 @@ def shop_visit(hero, shop):
             break
 
 # ------------ Use Item -------------
-def use_item(hero):
+
+def battle_use_item(hero):
     if not hero.item_inventory:
         print("You have no items in your inventory.")
         return
-    
-    print("Your inventory:")
-    hero.item_inventory.count(health_potion),"x Health Potions"
-    for i, item in enumerate(hero.item_inventory, start=1):
-        print(f"{i}. {item.name}")
-
-    while True:
-        try:
-            item_choice = int(input("Which item would you like to use? Enter the number: ")) - 1
-            if 0 <= item_choice < len(hero.item_inventory):
-                item_to_use = hero.item_inventory[item_choice]
-                print(f"You used {item_to_use.name}.")
-                item_to_use.use(hero)
-                break
-            else:
-                print("Invalid choice. Please try again.")
-        except ValueError:
-            print("Invalid input. Please enter a number.")
+    else:
+        hero.show_item_inventory()
+        while True:
+            try:
+                item_number = int(input("Choose an item by number: ")) - 1
+                if 0 <= item_number < len(hero.item_inventory):
+                    item = hero.item_inventory[item_number]
+                    hero.use_item(item)
+                    break
+                else:
+                    print("Invalid item number. Please try again.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
 
 
 # ------------ Post Victory ------------
@@ -89,8 +86,12 @@ def post_victory(hero, enemy):
     if enemy.weapon.name != 'Fists' or 'Fists' not in [weapon.name for weapon in hero.inventory]:
         hero.inventory.append(enemy.weapon)
     hero.item_inventory.append(health_potion)
+    hero.item_inventory.append(mana_potion)
     
     print("Hero's inventory after adding enemy weapon and earning a potion: ", [weapon.name for weapon in hero.inventory], hero.item_inventory.count(health_potion),"x Health Potions")
+    # item_choice = input("Would you like to use the item you just earned? (yes/no): ")
+    # if item_choice.lower() == 'yes':
+    #     hero.use_item(health_potion)
     shop_choice = input("Would you like to visit the shop? (yes/no): ")
     if shop_choice .lower() == 'yes':
         shop_visit(hero, shop)
@@ -115,7 +116,7 @@ def start_game_page():
         hero_maxHealth = 100
         hero_maxMana = 100
         hero = Hero(name=hero_name, health=hero_health, maxHealth=hero_maxHealth, mana=100, maxMana=100)
-        hero.equip(fists)
+        hero.equip(dagger)
         clear_console()
         see_lore = input("Would you like to see the intro lore? (yes/no): ")
         if see_lore.lower() == 'yes':
@@ -126,6 +127,23 @@ def start_game_page():
     else:
         print("Invalid choice. Please try again.")
         return start_game_page()
+    
+# ------------ Enemy Intro Lore ----------------
+def enemy_intro_lore(enemy):
+    if enemy == goblin:
+        goblinIntro()
+    elif enemy == ogre:
+        ogreIntro()
+    elif enemy == troll:
+        trollIntro()
+    elif enemy == wizard:
+        wizardIntro()
+    elif enemy == giant:
+        giantIntro()
+    elif enemy == minotaur:
+        minotaurIntro()
+    elif enemy == dragon:
+        dragonIntro()
     
 # ------------ Clear Screen --------------
 def clear_console():
@@ -140,10 +158,12 @@ if __name__ == "__main__":
     shop = Shop()
     original_hero_health = hero.health
 
-    enemies = [goblin, ogre, troll, wizard, skeleton, zombie, dragon]
+    enemies = [goblin, ogre, troll, wizard, giant, minotaur, dragon]
 
     while True:
         for enemy in enemies:
+            clear_console()
+            enemy_intro_lore(enemy) # Display the enemy intro lore
             chosen_weapon = choose_weapon(hero.inventory)
             hero.equip(chosen_weapon)
             while hero.health > 0 and enemy.health > 0:
@@ -156,7 +176,7 @@ if __name__ == "__main__":
                 elif action == '2':
                     hero.mana_attack(enemy)
                 elif action == '3':
-                    use_item(hero)
+                    battle_use_item(hero)
                 else:
                     print("Invalid action. You lose your turn.")
                 if enemy.health > 0:

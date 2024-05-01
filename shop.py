@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from character import Character, Hero
 from weapon import Weapon
+from item import Potion, health_potion, mana_potion
 
 class Shop:
     def __init__(self):
-        self.inventory = [Potion("Health", 50, 5)]  # The shop's inventory
+        self.inventory = [health_potion, mana_potion]
 
     def sell_weapon(self, hero: 'Hero', weapon: 'Weapon') -> None:
         if len(hero.inventory) > 1:
@@ -26,19 +27,16 @@ class Shop:
         else:
             print("You either don't have enough gold or the potion is not available in the shop.")
 
-@dataclass
+
 class Potion:
     name: str
     effect: int
     value: int
 
     def use(self, character: 'Character') -> None:
-        character.health = min(character.health + self.effect, character.health_max)
+        character.health = min(character.health + self.effect, character.maxHealth)
         character.health_bar.update()
+        print(f"{character.name} used {self.name} and restored {self.effect} health!")
 
     def __str__(self) -> str:
         return self.name  # Return the name of the potion
-
-
-health_potion = Potion("Health", 50, 5)
-mana_potion = Potion("Mana", 10, 10)

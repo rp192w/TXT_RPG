@@ -1,3 +1,5 @@
+import math
+
 class HealthBar:
     symbol_remaining: str = "█"
     symbol_lost: str = "_"
@@ -28,7 +30,7 @@ class HealthBar:
 
 
     def draw(self) -> None:
-        health_bar = self.symbol_remaining * self.current_value
+        health_bar = self.symbol_remaining * math.ceil(self.current_value)
         health_bar = health_bar.ljust(self.length, self.symbol_lost)
         health_bar = self.colorize(health_bar) if self.is_colored else health_bar
         print(f"{self.entity.name}'s HEALTH: {self.current_value}/{self.entity.maxHealth}")

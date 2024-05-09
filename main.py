@@ -1,7 +1,7 @@
 # ------------ Imports ------------
 import sys, os, subprocess, item
 from character import Hero, Enemy, goblin, ogre, troll, wizard, giant, minotaur, dragon
-from weapon import dagger, short_bow, iron_sword, battle_axe, steel_sword, magic_staff, fire_breath
+from weapon import dagger, magic_staff
 from story import introLore, goblinIntro, ogreIntro, trollIntro, wizardIntro, giantIntro, minotaurIntro, dragonIntro, dragonOutro, goblinOutro, ogreOutro, trollOutro, wizardOutro, giantOutro, minotaurOutro, dragonOutro, end_game_lore
 from shop import Shop
 from item import health_potion, mana_potion
@@ -9,50 +9,36 @@ from utils import clear_console
 # from item import health_potion, mana_potion
 
 
-# ------------ Enemy Intro Lore ----------------
-ENEMY_INTRO_LORE = {
-    'Goblin': goblinIntro,
-    'Ogre': ogreIntro,
-    'Troll': trollIntro,
-    'Wizard': wizardIntro,
-    'Giant': giantIntro,
-    'Minotaur': minotaurIntro,
-    'Dragon': dragonIntro
+# ------------ Enemy Lore ------------
+ENEMY_LORE = {
+    'Goblin': {'intro': goblinIntro, 'outro': goblinOutro},
+    'Ogre': {'intro': ogreIntro, 'outro': ogreOutro},
+    'Troll': {'intro': trollIntro, 'outro': trollOutro},
+    'Wizard': {'intro': wizardIntro, 'outro': wizardOutro},
+    'Giant': {'intro': giantIntro, 'outro': giantOutro},
+    'Minotaur': {'intro': minotaurIntro, 'outro': minotaurOutro},
+    'Dragon': {'intro': dragonIntro, 'outro': dragonOutro}
 }
 
-# ------------ Enemy Outro Lore ------------
-ENEMY_OUTRO_LORE = {
-    'Goblin': goblinOutro,
-    'Ogre': ogreOutro,
-    'Troll': trollOutro,
-    'Wizard': wizardOutro,
-    'Giant': giantOutro,
-    'Minotaur': minotaurOutro,
-    'Dragon': dragonOutro
-}
+# ------------ Enemy Lore Function ------------
+def enemy_lore(enemy, lore_type):
+    lore_func = ENEMY_LORE.get(enemy.name, {}).get(lore_type)
+    if lore_func:
+        lore = lore_func()
+        if lore is not None:
+            print(lore)
+    else:
+        print(f"No {lore_type} lore available for {enemy.name}.")
 
 # ------------ Enemy Intro Lore Function ------------
 def enemy_intro_lore(enemy):
-    intro_func = ENEMY_INTRO_LORE.get(enemy.name)
-    if intro_func:
-        lore = intro_func()
-        if lore is not None:
-            print(lore)
-    else:
-        print(f"No intro lore available for {enemy.name}.")
+    enemy_lore(enemy, 'intro')
 
 # ------------ Enemy Outro Lore Function ------------
 def enemy_outro_lore(enemy):
-    outro_func = ENEMY_OUTRO_LORE.get(enemy.name)
-    if outro_func:
-        lore = outro_func()
-        if lore is not None:
-            print(lore)
-    else:
-        print(f"No intro lore available for {enemy.name}.")
+    enemy_lore(enemy, 'outro')
     input("Press Enter to continue...")
     clear_console()
-    
     
 # ------------ Reset Game ------------
 def reset_game(hero, enemies):
@@ -270,7 +256,6 @@ def game_over(hero):
         return start_game_menu()
 
 # ------------ Main Game Loop ------------
-
 while True:
     hero = start_game_menu()
     clear_console()

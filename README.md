@@ -26,10 +26,8 @@ Defeat each enemy, each more powerful than the last, to complete the game.
 ## Features Under Construction
 
 1. Save/Load feature.
-2. Add lore before each battle
 2. Leveling system so you have to grind xp to get to the next set of enemies.
 3. Randomize enemy health, weapons to make unique play through.
-4. Defeat the wizard to unlock mana system with a more powerful magic attack.
-5. Add weapons to the item shop instead of getting them from slain enemies.
-6. Get gold from enemies instead of their weapon.
-7. Introduce random events or encounters that add unpredictability to the game.
+4. Add weapons to the item shop instead of getting them from slain enemies.
+5. Get gold from enemies instead of their weapon.
+6. Introduce random events or encounters that add unpredictability to the game.

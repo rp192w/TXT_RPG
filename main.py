@@ -6,7 +6,6 @@ from story import introLore, goblinIntro, ogreIntro, trollIntro, wizardIntro, gi
 from shop import Shop
 from item import health_potion, mana_potion
 from utils import clear_console
-# from item import health_potion, mana_potion
 
 
 # ------------ Enemy Lore ------------

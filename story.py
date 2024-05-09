@@ -503,7 +503,7 @@ def dragonOutro():
     lore = [
 		f"""
 
-With a mighty swing of the Minotaur's battle axe, you strike the final blow. 
+With a mighty swing, you strike the final blow. 
 The dragon reels, its roar turning into a low, agonized rumble as it collapses to the ground. 
 The sound reverberates through the cavern, mingling with the crash of falling rocks and the hiss of steam from molten lava. 
 The dragon's massive body lies still, its wings spread wide, a monument to its defeat.
@@ -545,7 +545,7 @@ You are a hero, a legend, and your name will be remembered for generations to co
 	]
     print_lore(lore)
 
-def end_game(hero_name):
+def end_game_lore(hero_name):
     lore = [
         f"""
 And so, the hero known as {hero_name} emerged from the dragon's lair, victorious and revered.

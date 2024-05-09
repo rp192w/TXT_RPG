@@ -2,7 +2,7 @@
 import sys, os, subprocess, item
 from character import Hero, Enemy, goblin, ogre, troll, wizard, giant, minotaur, dragon
 from weapon import dagger, short_bow, iron_sword, battle_axe, steel_sword, magic_staff, fire_breath
-from story import introLore, goblinIntro, ogreIntro, trollIntro, wizardIntro, giantIntro, minotaurIntro, dragonIntro, dragonOutro, goblinOutro, ogreOutro, trollOutro, wizardOutro, giantOutro, minotaurOutro, dragonOutro, end_game
+from story import introLore, goblinIntro, ogreIntro, trollIntro, wizardIntro, giantIntro, minotaurIntro, dragonIntro, dragonOutro, goblinOutro, ogreOutro, trollOutro, wizardOutro, giantOutro, minotaurOutro, dragonOutro, end_game_lore
 from shop import Shop
 from item import health_potion, mana_potion
 from utils import clear_console
@@ -52,6 +52,18 @@ def enemy_outro_lore(enemy):
         print(f"No intro lore available for {enemy.name}.")
     input("Press Enter to continue...")
     clear_console()
+    
+    
+# ------------ Reset Game ------------
+def reset_game(hero, enemies):
+    # Reset the hero
+    hero.health = 100  # Replace with the hero's starting health
+    hero.mana = 0  # Replace with the hero's starting mana
+    hero.inventory = [dagger]  # Replace with the hero's starting inventory
+
+    # Reset the enemies
+    for enemy in enemies:
+        enemy.health = enemy.maxHealth
 
 # ------------ Start Game Actions ------------
 START_GAME_ACTIONS = {
@@ -74,9 +86,10 @@ def start_game_menu():
         clear_console()
         see_lore = input("Would you like to see the intro lore? (1 for yes, 2 for no): ")
         if see_lore == '1':
-            introLore(hero_name)
+            introLore(hero)
         return hero
-    elif choice == '2':
+    elif choice == '2' and dragon.health >= 0:
+        print("You could not defeat the dragon. Humanity is doomed for eternity!")
         sys.exit()
     else:
         print("Invalid choice. Please try again.")
@@ -201,7 +214,7 @@ def battle_menu():
     print("Choose your action:")
     print("1. Attack")
     print("2. Use Item")
-    if 'magic staff' in hero.inventory:
+    if magic_staff in hero.inventory:
         print("3. Mana Attack")
     choice = input("Enter your choice: ")
     if choice == '':
@@ -222,6 +235,7 @@ def battle(hero, enemy):
         elif user_choice == 'mana_attack':
             if hero.mana >= 30 and magic_staff in hero.inventory:
                 hero.mana_attack(enemy)
+                hero.mana -= 30
             else:
                 print("Not enough mana for a mana attack. You lose your turn.")
         elif user_choice == 'use_item':
@@ -242,12 +256,13 @@ def game_over(hero):
     print("Would you like to play again?")
     choice = input("Enter '1' to play again or '2' to quit: ")
     if choice == '1':
+        reset_game(hero, enemies)
         return start_game_menu()
     elif choice == '2' and dragon.health <= 0:
-        end_game()
+        end_game_lore(hero.name)
         sys.exit()
     elif choice == '2':
-        print("The dragon has defeated you. Humanity is doomed for eternity!")
+        print("You could not defeat the dragon. Humanity is doomed for eternity!")
         sys.exit()
     else:
         print("Invalid choice. Please try again.")
@@ -271,6 +286,7 @@ while True:
             battle(hero, enemy)
             if hero.health <= 0:
                 game_over(hero)
+                break
             elif enemy.health <= 0:
                 clear_console()
                 print(f"{enemy.name} has been defeated!")

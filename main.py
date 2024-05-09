@@ -86,19 +86,22 @@ def start_game_menu():
 
 # ------------ Choose Weapon ------------
 def choose_weapon(inventory):
-    print("Choose a weapon from your inventory:")
-    for i, weapon in enumerate(inventory, start=1):
-        print(f"{i}. {weapon}")
-
     while True:
-        try:
-            weapon_choice = int(input("Enter the number of the weapon you want to use: ")) - 1
-            if 0 <= weapon_choice < len(inventory):
-                return inventory[weapon_choice]
-            else:
-                print("Invalid choice. Please try again.")
-        except ValueError:
+        print("Choose a weapon from your inventory:")
+        for i, weapon in enumerate(inventory, start=1):
+            print(f"{i}. {weapon}")
+
+        weapon_choice = input("Enter the number of the weapon you want to use: ")
+
+        if not weapon_choice.isdigit():
             print("Invalid input. Please enter a number.")
+            continue
+
+        weapon_choice = int(weapon_choice) - 1
+        if 0 <= weapon_choice < len(inventory):
+            return inventory[weapon_choice]
+        else:
+            print("Invalid choice. Please try again.")
 
 
 # ------------ Shop Visit ------------
@@ -106,85 +109,99 @@ def shop_menu(hero, shop):
     clear_console()
     print("Welcome to the shop!")
     while True:
-        print("You have", hero.gold, "gold.")
+        print(f"You have {hero.gold} gold.")
         print("1: Sell weapon")
         print("2: Buy health potion")
         print("3: Buy mana potion")
         print("4: Exit shop")
 
-        # Validating user input
         choice = input("> ")
-        try:
-            choice = int(choice)  # Convert user's input to integer
-        except ValueError:
+        if not choice.isdigit():
             print("Invalid input. Please enter a number.")
             continue
-        
+
+        choice = int(choice)
         if choice == 1:  # Sell weapon
             if len(hero.inventory) > 1:  # Cannot sell the last weapon
-                print("Choose a weapon to sell:")
-                for i, weapon in enumerate(hero.inventory, start=1):
-                    print(f"{i}: {weapon.name}")
-                try:
-                    weapon_index = int(input("> ")) - 1
-                    if 0 <= weapon_index < len(hero.inventory):
-                        shop.sell_weapon(hero, hero.inventory[weapon_index])
-                    else:
-                        print("Invalid index. Please choose again.")
-                except (ValueError, IndexError):
-                    print("Invalid input. Please choose a valid weapon number.")
+                sell_weapon(hero, shop)
             else:
                 print("You can't sell your last weapon.")
-        elif choice == 2:
-            shop.buy_item(health_potion, hero)
-        elif choice == 3:
-            shop.buy_item(mana_potion, hero)
+        elif choice in [2, 3]:  # Buy health or mana potion
+            item = health_potion if choice == 2 else mana_potion
+            shop.buy_item(item, hero)
         elif choice == 4:
-            print("Exiting shop. Here's your current inventory:")
-            print([weapon.name for weapon in hero.inventory], 
-                hero.item_inventory[health_potion], "x Health Potions", 
-                hero.item_inventory[mana_potion], "x Mana Potions")
-            print("You have", hero.gold, "gold.")
-            print("Press Enter to continue...")
-            input()
+            exit_shop(hero)
             break
         else:
             print("Invalid choice. Please enter a number between 1 and 4.")
+
+def sell_weapon(hero, shop):
+    print("Choose a weapon to sell:")
+    for i, weapon in enumerate(hero.inventory, start=1):
+        print(f"{i}: {weapon.name}")
+    weapon_index = input("> ")
+    if weapon_index.isdigit() and 0 < int(weapon_index) <= len(hero.inventory):
+        shop.sell_weapon(hero, hero.inventory[int(weapon_index) - 1])
+    else:
+        print("Invalid input. Please choose a valid weapon number.")
+
+def exit_shop(hero):
+    print("Exiting shop. Here's your current inventory:")
+    print([weapon.name for weapon in hero.inventory], 
+        hero.item_inventory[health_potion], "x Health Potions", 
+        hero.item_inventory[mana_potion], "x Mana Potions")
+    print(f"You have {hero.gold} gold.")
+    print("Press Enter to continue...")
+    input()
 
 # ------------ Use Item -------------
 def battle_use_item(hero):
     if not hero.item_inventory or all(count == 0 for count in hero.item_inventory.values()):
         print("You have no items in your inventory.")
         return
-    else:
+
+    while True:
         hero.show_item_inventory()
         item_choice = input("Choose an item to use by number or 'q' to quit: ")
         if item_choice.lower() == 'q':
             return
-        try:
-            item_choice = int(item_choice) - 1
-            if 0 <= item_choice < len(hero.item_inventory):
-                item = list(hero.item_inventory.keys())[item_choice]
-                hero.use_item(item)
-            else:
-                print("Invalid item number. Please try again.")
-        except ValueError:
+
+        if not item_choice.isdigit():
             print("Invalid input. Please enter a number.")
-        except IndexError:
+            continue
+
+        item_choice = int(item_choice) - 1
+        if 0 <= item_choice < len(hero.item_inventory):
+            item = list(hero.item_inventory.keys())[item_choice]
+            if hero.item_inventory[item] > 0:
+                hero.use_item(item)
+                break
+            else:
+                print("You have no more of that item.")
+        else:
             print("Invalid item number. Please try again.")
 
 
 # ------------ Post Victory ------------
 def post_victory(hero, enemy):
-    if enemy.weapon.name != 'Fists' or 'Fists' not in [weapon.name for weapon in hero.inventory]:
+    if enemy.weapon.name != 'Fists' and 'Fists' not in [weapon.name for weapon in hero.inventory]:
         hero.inventory.append(enemy.weapon)
     hero.item_inventory[health_potion] += 1  # Use the health_potion instance as the key
     if enemy == wizard or wizard.health <= 0:
         hero.item_inventory[mana_potion] += 2
+    print_inventory(hero)
+    restore_health(hero)
+    visit_shop(hero)
+
+def print_inventory(hero):
     print("Hero's inventory after adding enemy weapon and earning potions: ")
     print([weapon.name for weapon in hero.inventory],", ", hero.item_inventory[health_potion],"x Health Potions,", hero.item_inventory[mana_potion],"x Mana Potions")
+
+def restore_health(hero):
     hero.health = hero.maxHealth
     print(f"{hero.name} has been restored to full health!")
+
+def visit_shop(hero):
     shop_choice = input("Do you want to visit the shop? (1 for yes, 2 for no): ")
     if shop_choice == '1':
         shop_menu(hero, shop)
@@ -197,15 +214,21 @@ ACTIONS = {
 }
 # ------------ Battle Menu ------------
 def battle_menu():
-    print("Choose your action:")
-    print("1. Attack")
-    print("2. Use Item")
-    if magic_staff in hero.inventory:
-        print("3. Mana Attack")
-    choice = input("Enter your choice: ")
-    if choice == '':
-        return 'attack'
-    return ACTIONS.get(choice, None)
+    while True:
+        print("Choose your action:")
+        print("1. Attack")
+        print("2. Use Item")
+        if magic_staff in hero.inventory:
+            print("3. Mana Attack")
+
+        choice = input("Enter your choice: ")
+        if choice == '':
+            return 'attack'
+
+        if choice.isdigit() and 1 <= int(choice) <= 3:
+            return ACTIONS.get(choice, None)
+        else:
+            print("Invalid choice. Please enter a number between 1 and 3.")
 
 # ------------ Battle ------------
 def battle(hero, enemy):

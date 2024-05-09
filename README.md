@@ -1,6 +1,7 @@
 # TXT_RPG
 
 ## Description
+
 TXT_RPG is a text-based role-playing game where players can battle different enemies, interact with and use items in the item shop, and defeat enemies to progress in the story.
 
 ## Installation
